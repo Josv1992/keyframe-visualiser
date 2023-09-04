@@ -1,0 +1,62 @@
+body {
+  background-color: aliceblue;
+  font-family: sans-serif;
+}
+
+.container-chart {
+  width: 80%;
+  margin: auto;
+}
+
+.chart-container {
+  display: flex;
+  width: 99%;
+  height: 99%;
+  position: relative;
+  max-height: 200px;
+  flex-direction: column;
+}
+
+.container-input {
+  margin-top: 20px;
+  text-align: center;
+}
+
+#data-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical;
+}
+
+#update-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#update-button:hover {
+  background-color: #0056b3;
+}
+
+#file-input {
+  margin-top: 10px;
+}
+
+.chart-textarea {
+  width: 80%;
+  align-self: center;
+  min-height: 100px;
+  height: 300px;
+}
+
+.data-updated {
+  width: 100%;
+  margin-bottom: 20px;
+}
