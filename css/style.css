@@ -1,6 +1,20 @@
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Add some basic styling to the body */
 body {
-  background-color: aliceblue;
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin-top: 20px;
 }
 
 h1 {
@@ -66,35 +80,62 @@ h1 {
   margin-bottom: 20px;
 }
 
+.container {
+  width: 100%;
+}
+
+.segment {
+  width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
 #videoPropertiesForm {
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   border-radius: 5px;
+  width: 700px;
+  align-items: center; /* Horizontally center items */
+}
+
+.input-container {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  flex-direction: column;
+}
+
+.grid-3 {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
   align-items: center;
+  justify-content: space-between;
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
 }
 
 label {
   font-weight: bold;
   margin-bottom: 5px;
-  margin-right: 10px;
 }
 
 input[type="number"] {
-  flex: 1;
   padding: 10px;
-  margin-right: 10px;
-  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
 }
 
 button[type="submit"] {
+  grid-column: span 3;
   background-color: #007BFF;
   color: #fff;
   padding: 10px 20px;
