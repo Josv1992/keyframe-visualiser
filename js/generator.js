@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const form = document.getElementById('videoPropertiesForm');
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const bpm = parseFloat(form.bpm.value);
+        const framerate = parseInt(form.framerate.value, 10);
+        const length = parseFloat(form.length.value);
+
+        // You can use the values (bpm, framerate, length) for further processing here
+        console.log('BPM:', bpm);
+        console.log('Framerate:', framerate);
+        console.log('Length (seconds):', length);
+
+        // Add your logic to handle the form data as needed
+    });
+
     const keys = ['strength_schedule', 'test_data'];
     const textAreasChartsContainer = document.getElementById('text-areas-charts-container');
     const updatedDataElement = document.getElementById('updatedData');
