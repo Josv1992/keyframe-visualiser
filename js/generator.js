@@ -8,16 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const bpm = parseFloat(form.bpm.value);
         const framerate = parseInt(form.framerate.value, 10);
         const length = parseFloat(form.length.value);
-        const highStrength = parseFloat(form.highStrength.value);
-        const lowStrength = parseFloat(form.lowStrength.value);
-        const holdFrames = parseInt(form.holdFrames.value, 10);
+        const highStrength = parseFloat(form.highstrength.value);
+        const lowStrength = parseFloat(form.lowstrength.value);
+        const holdFrames = parseInt(form.holdframes.value, 10);
 
-        // You can use the values (bpm, framerate, length) for further processing here
-        console.log('BPM:', bpm);
-        console.log('Framerate:', framerate);
-        console.log('Length (seconds):', length);
-
-        // Add your logic to handle the form data as needed
         const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames);
         console.log(dataString);
     });
@@ -56,14 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     
-   
-    // Example usage:
-    const fps = 15; // Replace with the user's input for FPS
-    const videoLength = 4; // Replace with the user's input for Video Length (seconds)
-    const bpm = 150; // Replace with the user's input for BPM
-    const highStrength = 0.8; // Replace with the user's input for High Strength
-    const lowStrength = 0.15; // Replace with the user's input for Low Strength
-    const holdFrames = 3; // Replace with the user's input for Hold Frames
+    const fps = 15;
+    const videoLength = 4;
+    const bpm = 150;
+    const highStrength = 0.8;
+    const lowStrength = 0.15;
+    const holdFrames = 3;
         
     const dataString = generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames);
     console.log(dataString);    
