@@ -14,7 +14,7 @@
             <div class="grid-3">
                 <div class="grid-item">
                     <label for="framerate">Frames per Second:</label>
-                    <input type="number" id="framerate" name="framerate" step="1" value="15" required>
+                    <input type="number" id="framerate" name="framerate" step="1" value="60" required>
                 </div>
 
                 <div class="grid-item">
@@ -41,7 +41,14 @@
 
                 <div class="grid-item">
                     <label for="holdframes">Hold Frames:</label>
-                    <input type="number" id="holdframes" name="holdframes" step="1" value="7" required>
+                    <input type="number" id="holdframes" name="holdframes" step="1" value="2" required>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="grid-item">
+                    <label for="falloff">Falloff Value</label>
+                    <input type="number" id="falloff" name="falloff" step="0.01" value="2">
                 </div>
             </div>
         </div>
