@@ -15,9 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const lowStrength   = parseFloat(form.lowstrength.value);
     const holdFrames    = parseInt(form.holdframes.value, 10);
     const falloffValue  = parseFloat(form.falloff.value);
+    const steepness     = parseFloat(form.steepness.value)
 
     // Update the scatter chart with the new data
-    updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue);
+    updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue, steepness);
   });
 
     function generateXValues(fps, videoLength) {
@@ -25,8 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
       return Array.from({ length: frameCount }, (_, index) => index);
     }
     
-    function generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloff) {
+    function generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloff, steepness) {
       const xValues = generateXValues(fps, videoLength);
+
+      console.log(steepness);
     
       // Calculate the beat intervals based on BPM
       const beatInterval = Math.ceil(fps * (60 / bpm));
@@ -41,14 +44,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (beatPosition < holdFrames) {
           y = highStrength;
         } else {
-          // Calculate the distance from the start of falloff
-          const falloffDistance = beatPosition - holdFrames;
-    
-          // Calculate the falloff factor (should be between 0 and 1)
-          const falloffFactor = Math.min(falloffDistance / falloff, 1);
-    
-          // Calculate the y-value based on falloff
-          y = highStrength - (falloffFactor * (highStrength - lowStrength));
+      // Calculate the falloff factor only for the falloff part using a sine wave
+          if (index >= holdFrames) {
+            const falloffDistance = beatPosition - holdFrames;
+            const falloffFactor = Math.sin(Math.min(falloffDistance / falloff, 1) * Math.PI * 0.5);
+            // const falloffFactor = Math.pow(Math.min(falloffDistance / falloff, 1), 2);
+
+            y = highStrength - (highStrength - lowStrength) * falloffFactor;
+          } else {
+            y = lowStrength;
+          }
+
         }
     
         return `${x}:(${y.toFixed(2)})`;
@@ -69,8 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lowStrength = 0.15;
     const holdFrames = 3;
     const falloffel = 3;
+    const steepness = 0.8;
         
-    const dataString = generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloffel);
+    const dataString = generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloffel, steepness);
   
     
       // Function to generate data and update the scatter chart
