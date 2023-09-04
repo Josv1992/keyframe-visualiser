@@ -17,6 +17,7 @@ body {
   margin-top: 20px;
 }
 
+
 h1 {
   text-align: center;
   margin-top: 20px;
@@ -115,6 +116,7 @@ h1 {
   gap: 20px;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .grid-item {
@@ -143,4 +145,17 @@ button[type="submit"] {
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
+}
+
+
+/* Additional styles for dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #333333;
+    color: #ffffff;
+  }
+
+  #videoPropertiesForm {
+    background-color: #222;
+  }
 }
