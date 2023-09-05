@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const graphName = form.name.value;
 
       // Add a new graph div with chartData
-      addGraphDiv(graphName, chartData);
+      addGraphDiv(graphName, currentChartDataString);
 
       form.name.value = "Graph " + (chartData.length + 1);
     }
