@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('videoPropertiesForm');
 
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -26,11 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return Array.from({ length: frameCount }, (_, index) => index);
     }
     
-    function generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloff, steepness) {
-      const xValues = generateXValues(fps, videoLength);
+    let currentHold = 0;
 
-      console.log(steepness);
-    
+    function generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloff, power) {
+      const xValues = generateXValues(fps, videoLength);
+          
       // Calculate the beat intervals based on BPM
       const beatInterval = Math.ceil(fps * (60 / bpm));
     
@@ -40,21 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const beatPosition = index % beatInterval;
     
         // Calculate the y-value based on beat position and hold frames
+        let maxHold = falloff;
         let y;
         if (beatPosition < holdFrames) {
           y = highStrength;
+          currentHold = 0;
         } else {
-      // Calculate the falloff factor only for the falloff part using a sine wave
-          if (index >= holdFrames) {
+          if (index >= holdFrames && currentHold < maxHold) {
             const falloffDistance = beatPosition - holdFrames;
-            const falloffFactor = Math.sin(Math.min(falloffDistance / falloff, 1) * Math.PI * 0.5);
-            // const falloffFactor = Math.pow(Math.min(falloffDistance / falloff, 1), 2);
-
-            y = highStrength - (highStrength - lowStrength) * falloffFactor;
+            const falloffFactor = highStrength - Math.pow(falloffDistance / falloff, power) * (highStrength - lowStrength);
+            currentHold++;
+            y = falloffFactor;
           } else {
             y = lowStrength;
           }
-
         }
     
         return `${x}:(${y.toFixed(2)})`;
@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(dataString);
       return dataString;
     }
+    
+    
     
     
     
@@ -81,9 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
     
       // Function to generate data and update the scatter chart
-      function updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff) {
+      function updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power) {
         // Generate the data string based on the input values
-        const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff);
+        const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
     
         // Parse the data string into an array of objects
         const data = parseData(dataString);
