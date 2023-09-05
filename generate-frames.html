@@ -9,65 +9,68 @@
 <body>
 
 <section class="segment">
-    <form id="videoPropertiesForm">
-        <div class="input-container">
-            <div class="grid-3">
-                <div class="grid-item">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="Graph 1">
+    <div class="container controls-container">
+        <form id="videoPropertiesForm">
+            <div class="input-container">
+                <div class="grid-3">
+                    <div class="grid-item">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" value="Graph 1">
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="grid-item">
+                        <label for="framerate">Frames per Second:</label>
+                        <input type="number" id="framerate" name="framerate" step="1" value="60" required>
+                    </div>
+
+                    <div class="grid-item">
+                        <label for="length">Video Length:</label>
+                        <input type="number" id="length" name="length" step="0.001" value="4" required>
+                    </div>
+
+                    <div class="grid-item">
+                        <label for="bpm">Beats per Minute:</label>
+                        <input type="number" id="bpm" name="bpm" step="0.01" value="150" required>
+                    </div>
+                </div>
+
+                <div class="grid-3">
+                    <div class="grid-item">
+                        <label for="highstrength">High Strength:</label>
+                        <input type="number" id="highstrength" name="highstrength" step="0.01" value="0.8" required>
+                    </div>
+
+                    <div class="grid-item">
+                        <label for="lowstrength">Low Strength:</label>
+                        <input type="number" id="lowstrength" name="lowstrength" step="0.01" value="0.15" required>
+                    </div>
+
+                    <div class="grid-item">
+                        <label for="holdframes">Hold Frames:</label>
+                        <input type="number" id="holdframes" name="holdframes" step="1" value="2" required>
+                    </div>
+                </div>
+
+                <div class="grid-3">
+                    <div class="grid-item">
+                        <label for="falloff">Falloff Value</label>
+                        <input type="number" id="falloff" name="falloff" step="1" value="18">
+                    </div>
+                    <div class="grid-item">
+                        <label for="steepness">Falloff Steepness</label>
+                        <input type="number" id="steepness" name="steepness" step="0.01" value="1">
+                    </div>
                 </div>
             </div>
-            <div class="grid-3">
-                <div class="grid-item">
-                    <label for="framerate">Frames per Second:</label>
-                    <input type="number" id="framerate" name="framerate" step="1" value="60" required>
-                </div>
 
-                <div class="grid-item">
-                    <label for="length">Video Length:</label>
-                    <input type="number" id="length" name="length" step="0.001" value="4" required>
-                </div>
-
-                <div class="grid-item">
-                    <label for="bpm">Beats per Minute:</label>
-                    <input type="number" id="bpm" name="bpm" step="0.01" value="150" required>
-                </div>
+            <div class="form-buttons">
+                <button type="submit" id="calculate">Calculate</button>
+                <button id="add">Add</button>
             </div>
-
-            <div class="grid-3">
-                <div class="grid-item">
-                    <label for="highstrength">High Strength:</label>
-                    <input type="number" id="highstrength" name="highstrength" step="0.01" value="0.8" required>
-                </div>
-
-                <div class="grid-item">
-                    <label for="lowstrength">Low Strength:</label>
-                    <input type="number" id="lowstrength" name="lowstrength" step="0.01" value="0.15" required>
-                </div>
-
-                <div class="grid-item">
-                    <label for="holdframes">Hold Frames:</label>
-                    <input type="number" id="holdframes" name="holdframes" step="1" value="2" required>
-                </div>
-            </div>
-
-            <div class="grid-3">
-                <div class="grid-item">
-                    <label for="falloff">Falloff Value</label>
-                    <input type="number" id="falloff" name="falloff" step="1" value="18">
-                </div>
-                <div class="grid-item">
-                    <label for="steepness">Falloff Steepness</label>
-                    <input type="number" id="steepness" name="steepness" step="0.01" value="1">
-                </div>
-            </div>
-        </div>
-
-        <div class="form-buttons">
-            <button type="submit" id="calculate">Calculate</button>
-            <button id="add">Add</button>
-        </div>
-    </form>
+        </form>
+        <div class="graphs-container" id="graphsContainer"></div>
+    </div>
 </section>
 
 <section class="segment">
@@ -91,6 +94,7 @@
     <textarea name="updatedData" id="updatedData" class="data-updated" rows="10"></textarea>
 </section>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@2.2.3/dist/chartjs-plugin-dragdata.min.js"></script>
 <script src="js/generator.js"></script>

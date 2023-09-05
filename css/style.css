@@ -159,6 +159,34 @@ button[type="submit"]:active, #add:active {
   gap: 15px;
 }
 
+.controls-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.graphs-container {
+  width: 200px; /* Adjust the width as needed */
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-left: 20px; /* Adjust the margin as needed */
+  overflow-y: auto;
+  max-height: 300px; /* Adjust the max height as needed */
+}
+
+.graph {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 5px;
+  margin-bottom: 5px;
+  cursor: grab;
+  user-select: none;
+}
+
+.graph.dragging {
+  cursor: grabbing;
+  opacity: 0.5;
+}
 
 /* Additional styles for dark mode */
 @media (prefers-color-scheme: dark) {
@@ -170,4 +198,14 @@ button[type="submit"]:active, #add:active {
   #videoPropertiesForm {
     background-color: #222;
   }
-}
+
+  .graphs-container {
+    border-color: #222;
+  }
+
+  .graph {
+    background-color: #121212;
+    border-color: #333;
+  }
+
+  }

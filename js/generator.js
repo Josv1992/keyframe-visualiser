@@ -15,6 +15,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
       renderFullGraph();
+
+      // Create and add a new graph div to the list
+
+      // Get the graph name from the form
+      const graphName = form.name.value;
+
+      // Add a new graph div with chartData
+      addGraphDiv(graphName, chartData);
+
+      form.name.value = "Graph " + (chartData.length + 1);
     }
   });
 
@@ -220,5 +230,80 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     return data;
+  }
+
+  const graphsContainer = document.getElementById('graphsContainer');
+  let sortable;
+  let draggingGraph = null;
+
+  // Create and add a new graph div to the list
+  function addGraphDiv(graphName, chartData) {
+    const graphDiv = createGraphDiv(graphName);
+    graphsContainer.appendChild(graphDiv);
+
+    // Add chartData to the graphDiv
+    graphDiv.dataset.chartData = JSON.stringify(chartData);
+
+    // Enable drag-and-drop functionality
+    if (!sortable) {
+      sortable = new Sortable(graphsContainer, {
+        handle: '.drag-handle',
+        onUpdate: () => {
+          // Update the order of chartData based on the new order of graph divs
+          const updatedChartData = Array.from(graphsContainer.children).map((graphDiv) =>
+              JSON.parse(graphDiv.dataset.chartData)
+          );
+          chartData = updatedChartData;
+          renderFullGraph();
+        },
+      });
+    }
+  }
+
+  function createGraphDiv(graphName) {
+    const graphDiv = document.createElement('div');
+    graphDiv.className = 'graph';
+    graphDiv.textContent = graphName;
+    graphDiv.draggable = true;
+
+    graphDiv.addEventListener('dragstart', (e) => {
+      draggingGraph = e.target;
+      e.dataTransfer.setData('text/plain', ''); // Required for Firefox
+      e.dataTransfer.effectAllowed = 'move';
+      e.target.classList.add('dragging');
+    });
+
+    graphDiv.addEventListener('dragend', (e) => {
+      e.preventDefault();
+      draggingGraph = null;
+      e.target.classList.remove('dragging');
+    });
+
+    return graphDiv;
+  }
+
+  graphsContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const afterElement = getDragAfterElement(graphsContainer, e.clientY);
+    const graphDiv = draggingGraph;
+
+    if (afterElement == null) {
+      graphsContainer.appendChild(graphDiv);
+    } else {
+      graphsContainer.insertBefore(graphDiv, afterElement);
+    }
+  });
+
+  function getDragAfterElement(container, y) {
+    const graphDivs = [...container.querySelectorAll('.graph:not(.dragging)')];
+    return graphDivs.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) {
+        return { offset, element: child };
+      } else {
+        return closest;
+      }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 });
