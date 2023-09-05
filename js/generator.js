@@ -12,17 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentChartDataString !== '') {
       chartData.push({ data: currentChartDataString, startValue: currentXValue }); // Store data and start x value
 
+      const graphName = form.name.value;
+      addGraphDiv(graphName, { data: currentChartDataString, startValue: currentXValue });
+
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
-      renderFullGraph();
-
-      // Create and add a new graph div to the list
-
-      // Get the graph name from the form
-      const graphName = form.name.value;
-
-      // Add a new graph div with chartData
-      addGraphDiv(graphName, currentChartDataString);
+      renderFullGraph(true);
 
       form.name.value = "Graph " + (chartData.length + 1);
     }
@@ -151,15 +146,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderFullGraph() {
+  function renderFullGraph(isDataString) {
+
+    console.log(typeof chartData, chartData);
     // Combine all datasets in chartData array
-    const combinedData = chartData.reduce((result, { data, startValue }) => {
-      const parsedData = parseData(data);
-      // Offset the x values based on the startValue
-      const adjustedData = parsedData.map(({ x, y }) => ({ x: x + startValue, y }));
-      result.push(...adjustedData);
-      return result;
-    }, []);
+    let combinedData;
+
+    if (isDataString === true) {
+      combinedData = chartData.reduce((result, { data, startValue }) => {
+        const parsedData = parseData(data);
+        // Offset the x values based on the startValue
+        const adjustedData = parsedData.map(({ x, y }) => ({ x: x + startValue, y }));
+        result.push(...adjustedData);
+        // console.log(result);
+        return result;
+      }, []);
+    } else {
+      combinedData = chartData;
+    }
 
     // Check if the scatter chart already exists and update it
     const completeChartContainer = document.getElementById('complete-chart-container');
@@ -236,13 +240,52 @@ document.addEventListener('DOMContentLoaded', () => {
   let sortable;
   let draggingGraph = null;
 
+  function reSortData() {
+    chartData = [];
+
+    const graphDivs = graphsContainer.querySelectorAll('div');
+
+    for (let i = 0; i < graphDivs.length; i++) {
+      chartData.push(graphDivs[i].getAttribute('data-chart-data'));
+    }
+    chartData = transformData(chartData);
+
+    renderFullGraph(false);
+  }
+
+// Function to transform the input data
+function transformData(input) {
+  const transformedData = [];
+
+  let currentX = 0; // Initialize the currentX
+
+  input.forEach((str) => {
+      const values = str.match(/(\d+):\(([\d.]+)\)/g);
+
+      if (values) {
+          values.forEach((val) => {
+              const match = val.match(/(\d+):\((([\d.]+))\)/);
+              if (match) {
+                  const x = currentX;
+                  const y = parseFloat(match[3]);
+                  transformedData.push({ x, y });
+                  currentX++; // Increment currentX for the next value
+              }
+          });
+      }
+  });
+
+  return transformedData;
+}
+
   // Create and add a new graph div to the list
   function addGraphDiv(graphName, chartData) {
     const graphDiv = createGraphDiv(graphName);
     graphsContainer.appendChild(graphDiv);
 
     // Add chartData to the graphDiv
-    graphDiv.dataset.chartData = JSON.stringify(chartData);
+    graphDiv.dataset.chartData = JSON.stringify(chartData.data);
+    graphDiv.dataset.startValue = JSON.stringify(chartData.startValue);
 
     // Enable drag-and-drop functionality
     if (!sortable) {
@@ -253,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
           chartData = Array.from(graphsContainer.children).map((graphDiv) =>
               JSON.parse(graphDiv.dataset.chartData)
           );
-          renderFullGraph();
+          renderFullGraph(true); // TODO: Weg?
         },
       });
     }
@@ -275,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     graphDiv.addEventListener('dragend', (e) => {
       e.preventDefault();
       draggingGraph = null;
+      reSortData();
       e.target.classList.remove('dragging');
     });
 
