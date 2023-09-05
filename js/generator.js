@@ -1,14 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
   const textAreasChartsContainer = document.getElementById('text-areas-charts-container');
-  let chartData = {}; // Store chart instances and data
+  let chartData = []; // Store chart instances and data
+  let currentChartDataString = ''; // Store individual data strings
+  let currentXValue = 0;
 
   const form = document.getElementById('videoPropertiesForm');
 
+  document.getElementById('add').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (currentChartDataString !== '') {
+      chartData.push({ data: currentChartDataString, startValue: currentXValue }); // Store data and start x value
+      
+      // Increment the current x value for the next graph
+      currentXValue += parseData(currentChartDataString).length;
+      renderFullGraph();
+    }
+  });
 
-  form.addEventListener('submit', function (e) {
+  document.getElementById('calculate').addEventListener('click', (e) => {
     e.preventDefault();
 
     // Get the input values from the form
+    const graphName     = form.name.value;
     const bpm           = parseFloat(form.bpm.value);
     const framerate     = parseInt(form.framerate.value, 10);
     const length        = parseFloat(form.length.value);
@@ -19,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const steepness     = parseFloat(form.steepness.value)
 
     // Update the scatter chart with the new data
-    updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue, steepness);
+    updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue, steepness, graphName);
   });
 
     function generateXValues(fps, videoLength) {
@@ -66,109 +79,151 @@ document.addEventListener('DOMContentLoaded', () => {
       return dataString;
     }
     
-    
-    
-    
-    
-    const fps = 15;
-    const videoLength = 4;
-    const bpm = 150;
-    const highStrength = 0.8;
-    const lowStrength = 0.15;
-    const holdFrames = 3;
-    const falloffel = 3;
-    const steepness = 0.8;
-        
-    const dataString = generateDataString(fps, videoLength, bpm, highStrength, lowStrength, holdFrames, falloffel, steepness);
-  
-    
-      // Function to generate data and update the scatter chart
-      function updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power) {
-        // Generate the data string based on the input values
-        const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
-    
-        // Parse the data string into an array of objects
-        const data = parseData(dataString);
-    
-        // Check if the scatter chart already exists and update it
-        if (chartData.scatter) {
-          chartData.scatter.data.datasets[0].data = data;
-          chartData.scatter.update();
-        } else {
-          // Create a new scatter chart
-          const scatterCanvas = document.createElement('canvas');
-          scatterCanvas.id = 'chart_scatter';
-          scatterCanvas.width = 400;
-          scatterCanvas.height = 200;
-          textAreasChartsContainer.appendChild(scatterCanvas);
-    
-          const scatterCtx = scatterCanvas.getContext('2d');
-    
-          const scatterChart = new Chart(scatterCtx, {
-            type: 'scatter',
-            data: {
-              datasets: [
-                {
-                  label: 'Scatter Data',
-                  data: data,
-                  borderColor: 'rgba(75, 192, 192, 1)',
-                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                  showLine: true
-                },
-              ],
+  // Function to generate data and update the scatter chart
+  function updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power, name) {
+    // Generate the data string based on the input values
+    const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
+
+    currentChartDataString += dataString;
+
+    // Parse the data string into an array of objects
+    const data = parseData(dataString);
+    document.getElementById('previewGraphName').innerText = name;
+
+    // Check if the scatter chart already exists and update it
+    if (chartData.scatter) {
+      chartData.scatter.data.datasets[0].data = data;
+      chartData.scatter.update();
+    } else {
+      // Create a new scatter chart
+      const scatterCanvas = document.createElement('canvas');
+      scatterCanvas.id = 'chart_scatter';
+      scatterCanvas.width = 400;
+      scatterCanvas.height = 200;
+      textAreasChartsContainer.appendChild(scatterCanvas);
+
+      const scatterCtx = scatterCanvas.getContext('2d');
+
+      const scatterChart = new Chart(scatterCtx, {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Scatter Data',
+              data: data,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              showLine: true
             },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: 'Frame',
-                  },
-                  type: 'linear',
-                  position: 'bottom',
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: 'Value',
-                  },
-                  beginAtZero: true,
-                },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Frame',
               },
+              type: 'linear',
+              position: 'bottom',
             },
-          });
-    
-          chartData.scatter = scatterChart;
-        }
-      }
+            y: {
+              title: {
+                display: true,
+                text: 'Value',
+              },
+              beginAtZero: true,
+            },
+          },
+        },
+      });
 
-  // Function to parse the data input and generate datasets
-const parseData = (dataString) => {
-  const items = dataString.split(', ');
-  const data = [];
-
-  for (const item of items) {
-    const [x, y] = item.split(':');
-    const parsedX = parseInt(x);
-    const parsedY = parseFloat(y.replace(/[()]/g, ''));
-
-    if (!isNaN(parsedX) && isFinite(parsedX)) {
-      data.push({ x: parsedX, y: parsedY });
-    } else if (parsedX === 0) {
-      data.push({ x: parsedX, y: parsedY });
+      chartData.scatter = scatterChart;
     }
   }
 
-  return data;
-}
+  function renderFullGraph() {
+    // Combine all datasets in chartData array
+    const combinedData = chartData.reduce((result, { data, startValue }) => {
+      const parsedData = parseData(data);
+      // Offset the x values based on the startValue
+      const adjustedData = parsedData.map(({ x, y }) => ({ x: x + startValue, y }));
+      result.push(...adjustedData);
+      return result;
+    }, []);
 
-// Function to calculate the falloff factor based on frame position
-function calculateFalloffFactor(currentFrame, totalFrames, falloff) {
-  // Use a mathematical function to adjust the falloff
-  const x = currentFrame / totalFrames;
-  return falloff * Math.sin(x * Math.PI);
-}
+    // Check if the scatter chart already exists and update it
+    const completeChartContainer = document.getElementById('complete-chart-container');
+    completeChartContainer.innerHTML = ''; // Clear the container before rendering
 
+    // Create a new scatter chart in the complete-chart-container
+    const scatterCanvas = document.createElement('canvas');
+    scatterCanvas.id = 'chart_scatter';
+    scatterCanvas.width = 400;
+    scatterCanvas.height = 200;
+    completeChartContainer.appendChild(scatterCanvas);
+
+    const scatterCtx = scatterCanvas.getContext('2d');
+
+    const scatterChart = new Chart(scatterCtx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Scatter Data',
+            data: combinedData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            showLine: true
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Frame',
+            },
+            type: 'linear',
+            position: 'bottom',
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Value',
+            },
+            beginAtZero: true,
+          },
+        },
+      },
+    });
+
+    chartData.scatter = scatterChart;
+  }
+
+
+  // Function to parse the data input and generate datasets
+  const parseData = (dataString) => {
+    const items = dataString.split(', ');
+    const data = [];
+  
+    for (const item of items) {
+      const [x, y] = item.split(':');
+      const parsedX = parseInt(x);
+      const parsedY = parseFloat(y.replace(/[()]/g, ''));
+  
+      if (!isNaN(parsedX) && isFinite(parsedX)) {
+        data.push({ x: parsedX, y: parsedY });
+      } else if (parsedX === 0) {
+        data.push({ x: parsedX, y: parsedY });
+      }
+    }
+  
+    return data;
+  }
 });
