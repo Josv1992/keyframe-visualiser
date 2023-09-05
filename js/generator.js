@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
+      console.log(chartData);
       renderFullGraph(true);
 
       form.name.value = "Graph " + (chartData.length + 1);
@@ -147,8 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderFullGraph(isDataString) {
-
-    console.log(typeof chartData, chartData);
     // Combine all datasets in chartData array
     let combinedData;
 
@@ -213,6 +212,22 @@ document.addEventListener('DOMContentLoaded', () => {
         },
       },
     });
+
+    writeDataString(combinedData);
+  }
+
+  const writeDataString = (data) => {
+    const formattedData = data.reduce((result, { x, y }) => {
+      if (!result[x]) {
+          result[x] = [];
+      }
+      result[x].push(y);
+      return result;
+    }, {});
+
+    const output = Object.entries(formattedData).map(([x, ys]) => `${x}:(${ys.join(', ')})`).join(', ');
+
+    document.getElementById('updatedData').value = output;
   }
 
 
