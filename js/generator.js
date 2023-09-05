@@ -250,10 +250,9 @@ document.addEventListener('DOMContentLoaded', () => {
         handle: '.drag-handle',
         onUpdate: () => {
           // Update the order of chartData based on the new order of graph divs
-          const updatedChartData = Array.from(graphsContainer.children).map((graphDiv) =>
+          chartData = Array.from(graphsContainer.children).map((graphDiv) =>
               JSON.parse(graphDiv.dataset.chartData)
           );
-          chartData = updatedChartData;
           renderFullGraph();
         },
       });
