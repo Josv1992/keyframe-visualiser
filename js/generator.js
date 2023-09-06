@@ -5,6 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentChartDataString = ''; // Store individual data strings
   let currentXValue = 0;
 
+  // TODO: chartData moet puur en alleen chart data zijn, geen scatter aan toevoegen
+  // TODO: Verder nog meer checken of je geen 'datatypes' verandert
+
   const form = document.getElementById('videoPropertiesForm');
 
   document.getElementById('add').addEventListener('click', (e) => {
@@ -80,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${x}:(${y.toFixed(2)})`;
       });
 
+      console.log(dataPairs.join(', '));
+
       // Join the data pairs with commas and create the final data string
       return dataPairs.join(', ');
     }
@@ -90,9 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
 
     currentChartDataString = dataString;
+    console.log(currentChartDataString);
 
     // Parse the data string into an array of objects
     const data = parseData(dataString);
+    console.log(data);
+
     document.getElementById('previewGraphName').innerText = name;
 
     // Check if the scatter chart already exists and update it
