@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let chartDataString = '';
   let currentChartDataString = ''; // Store individual data strings
   let currentXValue = 0;
+  let amountOfDataSets = false;
 
   // TODO: chartData moet puur en alleen chart data zijn, geen scatter aan toevoegen
   // TODO: Verder nog meer checken of je geen 'datatypes' verandert
@@ -14,10 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
     if (currentChartDataString !== '') {
-      chartDataString += currentChartDataString;
-      console.log(chartDataString, currentXValue);
-      // TODO: De x waardes van de nieuw toegevoegde datatring bij hoogste X waarde + 1 laten beginnen
-      addDataString(chartDataString, currentChartDataString);
+      console.log(chartDataString);
+      if (amountOfDataSets >= 1) {
+        chartDataString = updatedDataString(chartDataString, currentChartDataString);
+      }
+      
       chartData.push({ data: currentChartDataString, startValue: currentXValue }); // Store data and start x value
 
       const graphName = form.name.value;
@@ -25,46 +27,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
-      console.log('Add click: ', chartData);
       renderFullGraph(true);
 
       form.name.value = "Graph " + (chartData.length + 1);
+      amountOfDataSets++;
     }
   });
 
   const test1 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
   const test2 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
 
-  addDataString(test1, test2);
+  console.log(updatedDataString(test1, test2));
 
-  function addDataString(firstString, secondString) {
+  function updatedDataString(firstString, secondString) {
     const items = firstString.split(', ');
     const splitSecondString = secondString.split(', ');
-    const data = [];
-    let lastX = parseInt(items[items.length -1].split(':')) + 1; // Get the last/highest X value of the first string
+    let lastX = parseInt(items[items.length -1].split(':')) + 1;
+    let updatedSecondString = '';
 
-    // TODO: lastX toevoegen aan elke X van secondString
-    for (const [i, item] of splitSecondString) {
-      const [x, y] = item.split(':');
-      const updatedX = parseInt(x)
-    }
-
-  
-    for (const [i, item] of items) {
-      const [x, y] = item.split(':');
-      const parsedX = parseInt(x);
-      const parsedY = parseFloat(y.replace(/[()]/g, ''));
-  
-      if (!isNaN(parsedX) && isFinite(parsedX)) {
-        data.push({ x: parsedX, y: parsedY });
-      } else if (parsedX === 0) {
-        data.push({ x: parsedX, y: parsedY });
+    for (const [i, item] of splitSecondString.entries()) {
+      const [x, y] = item.split(':'); // "Uitpakken"
+      const updatedX = parseInt(x) + lastX; // "Toevoegen"
+      
+      if (i !== splitSecondString.length - 1) {
+        updatedSecondString += (updatedX + ':' + y + ', ');
+      } else {
+        updatedSecondString += (updatedX + ':' + y);
       }
     }
-  
-    return data;
-
-  }
+    
+    return firstString + ', ' + updatedSecondString;
+    }
 
   document.getElementById('calculate').addEventListener('click', (e) => {
     e.preventDefault();
@@ -132,6 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateScatterChart(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power, name) {
     // Generate the data string based on the input values
     const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
+
+    if (amountOfDataSets < 1) {
+      chartDataString += dataString;
+    }
 
     currentChartDataString = dataString;
     console.log('updateScatterChart, currentChartDataString', currentChartDataString);
