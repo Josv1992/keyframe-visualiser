@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const textAreasChartsContainer = document.getElementById('text-areas-charts-container');
   let previewChartData = [];
   let chartData = []; // Store chart instances and data
+  let chartDataString = '';
   let currentChartDataString = ''; // Store individual data strings
   let currentXValue = 0;
 
@@ -13,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
     if (currentChartDataString !== '') {
+      chartDataString += currentChartDataString;
+      console.log(chartDataString, currentXValue);
+      // TODO: De x waardes van de nieuw toegevoegde datatring bij hoogste X waarde + 1 laten beginnen
+      addDataString(chartDataString, currentChartDataString);
       chartData.push({ data: currentChartDataString, startValue: currentXValue }); // Store data and start x value
 
       const graphName = form.name.value;
@@ -20,12 +25,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
-      console.log(chartData);
+      console.log('Add click: ', chartData);
       renderFullGraph(true);
 
       form.name.value = "Graph " + (chartData.length + 1);
     }
   });
+
+  const test1 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
+  const test2 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
+
+  addDataString(test1, test2);
+
+  function addDataString(firstString, secondString) {
+    const items = firstString.split(', ');
+    const splitSecondString = secondString.split(', ');
+    const data = [];
+    let lastX = parseInt(items[items.length -1].split(':')) + 1; // Get the last/highest X value of the first string
+
+    // TODO: lastX toevoegen aan elke X van secondString
+    for (const [i, item] of splitSecondString) {
+      const [x, y] = item.split(':');
+      const updatedX = parseInt(x)
+    }
+
+  
+    for (const [i, item] of items) {
+      const [x, y] = item.split(':');
+      const parsedX = parseInt(x);
+      const parsedY = parseFloat(y.replace(/[()]/g, ''));
+  
+      if (!isNaN(parsedX) && isFinite(parsedX)) {
+        data.push({ x: parsedX, y: parsedY });
+      } else if (parsedX === 0) {
+        data.push({ x: parsedX, y: parsedY });
+      }
+    }
+  
+    return data;
+
+  }
 
   document.getElementById('calculate').addEventListener('click', (e) => {
     e.preventDefault();
@@ -83,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${x}:(${y.toFixed(2)})`;
       });
 
-      console.log(dataPairs.join(', '));
+      console.log('dataparis join: ', dataPairs.join(', '));
 
       // Join the data pairs with commas and create the final data string
       return dataPairs.join(', ');
@@ -95,11 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
 
     currentChartDataString = dataString;
-    console.log(currentChartDataString);
+    console.log('updateScatterChart, currentChartDataString', currentChartDataString);
 
     // Parse the data string into an array of objects
     const data = parseData(dataString);
-    console.log(data);
+    console.log('updateScatterChart, data', data);
 
     document.getElementById('previewGraphName').innerText = name;
 
@@ -237,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('updatedData').value = output;
   }
-
 
   // Function to parse the data input and generate datasets
   const parseData = (dataString) => {
