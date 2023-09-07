@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentXValue = 0;
   let amountOfDataSets = false;
 
-  // TODO: chartData moet puur en alleen chart data zijn, geen scatter aan toevoegen
-  // TODO: Verder nog meer checken of je geen 'datatypes' verandert
-
   const form = document.getElementById('videoPropertiesForm');
-
+  
+  // TODO:  Dingen die dubbelop zijn verwijderen, refactoren, vereenvoudigen.
+  // TODO: Graph verwijderbaar maken
+  // TODO: Graph editable maken
+  
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
     if (currentChartDataString !== '') {
@@ -27,18 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
-      renderFullGraph(true);
+      renderFullGraph();
 
       form.name.value = "Graph " + (chartData.length + 1);
       amountOfDataSets++;
     }
   });
-
-  const test1 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
-  const test2 = '0:(0.80), 1:(0.80), 2:(0.80), 3:(0.76), 4:(0.73), 5:(0.69), 6:(0.66), 7:(0.62), 8:(0.58)';
-
-  console.log(updatedDataString(test1, test2));
-
+  
   function updatedDataString(firstString, secondString) {
     const items = firstString.split(', ');
     const splitSecondString = secondString.split(', ');
@@ -57,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     return firstString + ', ' + updatedSecondString;
-    }
+  }
 
   document.getElementById('calculate').addEventListener('click', (e) => {
     e.preventDefault();
@@ -115,8 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${x}:(${y.toFixed(2)})`;
       });
 
-      console.log('dataparis join: ', dataPairs.join(', '));
-
       // Join the data pairs with commas and create the final data string
       return dataPairs.join(', ');
     }
@@ -127,15 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataString = generateDataString(framerate, length, bpm, highStrength, lowStrength, holdFrames, falloff, power);
 
     if (amountOfDataSets < 1) {
-      chartDataString += dataString;
+      chartDataString = dataString;
     }
 
     currentChartDataString = dataString;
-    console.log('updateScatterChart, currentChartDataString', currentChartDataString);
 
     // Parse the data string into an array of objects
     const data = parseData(dataString);
-    console.log('updateScatterChart, data', data);
 
     document.getElementById('previewGraphName').innerText = name;
 
@@ -191,22 +183,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderFullGraph(isDataString) {
-    // Combine all datasets in chartData array
-    let combinedData;
-
-    if (isDataString === true) {
-      combinedData = chartData.reduce((result, { data, startValue }) => {
-        const parsedData = parseData(data);
-        // Offset the x values based on the startValue
-        const adjustedData = parsedData.map(({ x, y }) => ({ x: x + startValue, y }));
-        result.push(...adjustedData);
-        // console.log(result);
-        return result;
-      }, []);
-    } else {
-      combinedData = chartData;
-    }
+  function renderFullGraph() {
+    // parse data string for chart    
+    let combinedData = parseData(chartDataString);
 
     // Check if the scatter chart already exists and update it
     const completeChartContainer = document.getElementById('complete-chart-container');
@@ -307,34 +286,70 @@ document.addEventListener('DOMContentLoaded', () => {
       chartData.push(graphDivs[i].getAttribute('data-chart-data'));
     }
     chartData = transformData(chartData);
-
-    renderFullGraph(false);
+    convertAfterSort();
+    renderFullGraph();
   }
 
-// Function to transform the input data
-function transformData(input) {
-  const transformedData = [];
+  let currentX = 0;
 
-  let currentX = 0; // Initialize the currentX
 
-  input.forEach((str) => {
-      const values = str.match(/(\d+):\(([\d.]+)\)/g);
+  function convertAfterSort() {
+    let sortedDataString = '';
+    const graphDivs = graphsContainer.querySelectorAll('div');
+    currentX = 0;
 
-      if (values) {
-          values.forEach((val) => {
-              const match = val.match(/(\d+):\((([\d.]+))\)/);
-              if (match) {
-                  const x = currentX;
-                  const y = parseFloat(match[3]);
-                  transformedData.push({ x, y });
-                  currentX++; // Increment currentX for the next value
-              }
-          });
+    for (let i = 0; i < graphDivs.length; i++) {
+      sortedDataString += updateDataStringXValues(currentX, graphDivs[i].dataset.chartData);
+      currentX = updateDataStringXValues(currentX, graphDivs[i].dataset.chartData)[1];
+    }
+
+    chartDataString = sortedDataString;
+  }
+
+  function updateDataStringXValues(xValue, inputData) {
+    const items = inputData.split(', ');
+    let updatedDataString = '';
+
+    for (const [i, item] of items.entries()) {
+      const [x, y] = item.split(':'); // "Uitpakken"
+
+      if (i !== items.length - 1) {
+        updatedDataString += (currentX + ':' + y + ', ');
+      } else {
+        updatedDataString += (currentX + ':' + y);
       }
-  });
+      
+      currentX++;
+    }
 
-  return transformedData;
-}
+    // TODO updated currentX;
+    return [updatedDataString, xValue];
+  }
+
+  // Function to transform the input data
+  function transformData(input) {
+    const transformedData = [];
+  
+    let currentX = 0; // Initialize the currentX
+  
+    input.forEach((str) => {
+        const values = str.match(/(\d+):\(([\d.]+)\)/g);
+  
+        if (values) {
+            values.forEach((val) => {
+                const match = val.match(/(\d+):\((([\d.]+))\)/);
+                if (match) {
+                    const x = currentX;
+                    const y = parseFloat(match[3]);
+                    transformedData.push({ x, y });
+                    currentX++; // Increment currentX for the next value
+                }
+            });
+        }
+    });
+  
+    return transformedData;
+  }
 
   // Create and add a new graph div to the list
   function addGraphDiv(graphName, chartData) {
@@ -342,8 +357,8 @@ function transformData(input) {
     graphsContainer.appendChild(graphDiv);
 
     // Add chartData to the graphDiv
-    graphDiv.dataset.chartData = JSON.stringify(chartData.data);
-    graphDiv.dataset.startValue = JSON.stringify(chartData.startValue);
+    graphDiv.dataset.chartData = chartData.data;
+    graphDiv.dataset.startValue = chartData.startValue;
 
     // Enable drag-and-drop functionality
     if (!sortable) {
@@ -354,7 +369,7 @@ function transformData(input) {
           chartData = Array.from(graphsContainer.children).map((graphDiv) =>
               JSON.parse(graphDiv.dataset.chartData)
           );
-          renderFullGraph(true); // TODO: Weg?
+          renderFullGraph(); // TODO: Weg?
         },
       });
     }
