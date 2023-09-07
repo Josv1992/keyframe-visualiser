@@ -5,12 +5,35 @@ document.addEventListener('DOMContentLoaded', () => {
   let chartDataString = '';
   let currentChartDataString = ''; // Store individual data strings
   let currentXValue = 0;
-  let amountOfDataSets = false;
+  let amountOfDataSets = 0;
 
   const form = document.getElementById('videoPropertiesForm');
   
   // TODO: Refactor: Dingen die dubbelop zijn verwijderen, vereenvoudigen.
   // TODO: Graph editable maken (Kan het beste als je er een class van hebt gemaakt, die class instance aanpassen)
+
+  // TODO: komma voor de data na verwijderen
+  // TODO: Bug na verwijderen alle graphs fixen
+  const allDataSets = [];
+
+  class dataSet {
+    constructor(name, fps, duration, bpm, highStrength, lowStrength, holdFrames, falloffLength, falloffCurve) {
+      this.name = name;
+      this.fps = fps;
+      this.duration = duration;
+      this.bpm = bpm;
+      this.highStrength = highStrength;
+      this.lowStrength = lowStrength;
+      this.holdFrames = holdFrames;
+      this.falloffLength = falloffLength;
+      this.falloffCurve = falloffCurve;
+      this.sortOrder = this.sortValue();
+    }
+
+    sortValue() {
+      return amountOfDataSets;
+    }
+  }
   
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
@@ -27,6 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
       // Increment the current x value for the next graph
       currentXValue += parseData(currentChartDataString).length;
       renderFullGraph();
+
+          // Get the input values from the form
+      const bpm           = parseFloat(form.bpm.value);
+      const framerate     = parseInt(form.framerate.value, 10);
+      const length        = parseFloat(form.length.value);
+      const highStrength  = parseFloat(form.highstrength.value);
+      const lowStrength   = parseFloat(form.lowstrength.value);
+      const holdFrames    = parseInt(form.holdframes.value, 10);
+      const falloffValue  = parseFloat(form.falloff.value);
+      const steepness     = parseFloat(form.steepness.value)
+      
+      allDataSets.push(new dataSet(graphName, framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue, steepness));
 
       form.name.value = "Graph " + (chartData.length + 1);
       amountOfDataSets++;
@@ -182,7 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderFullGraph() {
-    // parse data string for chart    
+    // parse data string for chart
+    console.log(typeof chartDataString, chartDataString);
     let combinedData = parseData(chartDataString);
 
     // Check if the scatter chart already exists and update it
@@ -238,37 +274,48 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const writeDataString = (data) => {
-    const formattedData = data.reduce((result, { x, y }) => {
-      if (!result[x]) {
-          result[x] = [];
-      }
-      result[x].push(y);
-      return result;
-    }, {});
+    if (typeof data === 'object') {
+      const formattedData = data.reduce((result, { x, y }) => {
+        if (!result[x]) {
+            result[x] = [];
+        }
+        result[x].push(y);
+        return result;
+      }, {});
 
-    const output = Object.entries(formattedData).map(([x, ys]) => `${x}:(${ys.join(', ')})`).join(', ');
+      const output = Object.entries(formattedData).map(([x, ys]) => `${x}:(${ys.join(', ')})`).join(', ');
+      document.getElementById('updatedData').value = output;
 
-    document.getElementById('updatedData').value = output;
+    } else {
+      document.getElementById('updatedData').value = data;
+    }
   }
 
   // Function to parse the data input and generate datasets
   const parseData = (dataString) => {
-    const items = dataString.split(', ');
-    const data = [];
-  
-    for (const item of items) {
-      const [x, y] = item.split(':');
-      const parsedX = parseInt(x);
-      const parsedY = parseFloat(y.replace(/[()]/g, ''));
-  
-      if (!isNaN(parsedX) && isFinite(parsedX)) {
-        data.push({ x: parsedX, y: parsedY });
-      } else if (parsedX === 0) {
-        data.push({ x: parsedX, y: parsedY });
+    if (dataString !== '') {
+      const items = dataString.split(', ');
+      const data = [];
+
+      console.log(items);
+
+      for (const item of items) {
+        const [x, y] = item.split(':');
+        const parsedX = parseInt(x);
+        const parsedY = parseFloat(y.replace(/[()]/g, ''));
+    
+        if (!isNaN(parsedX) && isFinite(parsedX)) {
+          data.push({ x: parsedX, y: parsedY });
+        } else if (parsedX === 0) {
+          data.push({ x: parsedX, y: parsedY });
+        }
       }
+
+      return data;
+      
+      } else {
+      return dataString;
     }
-  
-    return data;
   }
 
   const graphsContainer = document.getElementById('graphsContainer');
@@ -301,7 +348,14 @@ document.addEventListener('DOMContentLoaded', () => {
       currentX = updateDataStringXValues(currentX, graphDivs[i].dataset.chartData)[1];
     }
 
-    chartDataString = sortedDataString;
+    if (graphDivs.length > 0) {
+      chartDataString = sortedDataString;
+      currentXValue = chartDataString.split(', ').length;
+      console.log(currentXValue);
+    } else {
+      chartDataString = '';
+      currentXValue = 0;
+    }
   }
 
   function updateDataStringXValues(xValue, inputData) {
