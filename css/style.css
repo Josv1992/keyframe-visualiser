@@ -174,18 +174,33 @@ button[type="submit"]:active, #add:active {
   max-height: 300px; /* Adjust the max height as needed */
 }
 
-.graph {
+.graph-button {
+  display: flex;
   background-color: #f0f0f0;
   border: 1px solid #ddd;
   padding: 5px;
   margin-bottom: 5px;
   cursor: grab;
   user-select: none;
+  justify-content: space-between; /* Add this line */
 }
 
-.graph.dragging {
+.graph-button.dragging {
   cursor: grabbing;
   opacity: 0.5;
+}
+
+.remove-button {
+  cursor: pointer;
+}
+
+/* Style the SVG cross */
+.remove-button svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: #aaa;
+  stroke-width: 2;
 }
 
 /* Additional styles for dark mode */
@@ -203,7 +218,7 @@ button[type="submit"]:active, #add:active {
     border-color: #222;
   }
 
-  .graph {
+  .graph-button {
     background-color: #121212;
     border-color: #333;
   }

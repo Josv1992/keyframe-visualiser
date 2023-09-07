@@ -1,3 +1,5 @@
+// TODO: Refactor generator.js here, using Classes
+
 document.addEventListener('DOMContentLoaded', () => {
   const textAreasChartsContainer = document.getElementById('text-areas-charts-container');
   let previewChartData = [];
@@ -11,7 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // TODO:  Dingen die dubbelop zijn verwijderen, refactoren, vereenvoudigen.
   // TODO: Graph verwijderbaar maken
-  // TODO: Graph editable maken (Kan het beste als je er een class van hebt gemaakt, die class instance aanpassen)
+  // TODO: Graph editable maken
+
+  class dataSet {
+    constructor(name, fps, duration, bpm, highStrength, lowStrength, holdFrames, falloffLength, falloffCurve) {
+      this.name = name;
+      this.fps = fps;
+      this.duration = duration;
+      this.bpm = bpm;
+      this.highStrength = highStrength;
+      this.lowStrength = lowStrength;
+      this.holdFrames = holdFrames;
+      this.falloffLength = falloffLength;
+      this.falloffCurve = falloffCurve;
+    }
+  }
   
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
@@ -285,8 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < graphDivs.length; i++) {
       chartData.push(graphDivs[i].getAttribute('data-chart-data'));
     }
-    console.log(chartData);
-    // chartData = transformData(chartData);
+    chartData = transformData(chartData);
     convertAfterSort();
     renderFullGraph();
   }
@@ -330,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to transform the input data
   function transformData(input) {
     const transformedData = [];
-    console.log(transformedData);
   
     let currentX = 0; // Initialize the currentX
   
@@ -396,20 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
       reSortData();
       e.target.classList.remove('dragging');
     });
-    
-    // Add the Remove Button
-    const removeButton = document.createElement('div');
-    removeButton.classList.add('remove-button');
-    removeButton.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-        <line x1="1" y1="1" x2="11" y2="11" stroke="#aaa" stroke-width="2"/>
-        <line x1="1" y1="11" x2="11" y2="1" stroke="#aaa" stroke-width="2"/>
-      </svg>
-    `;
-    removeButton.addEventListener('click', () => {
-      removeGraphDiv(graphDiv);
-    });
-    graphDiv.appendChild(removeButton);
 
     return graphDiv;
   }
@@ -437,15 +437,5 @@ document.addEventListener('DOMContentLoaded', () => {
         return closest;
       }
     }, { offset: Number.NEGATIVE_INFINITY }).element;
-  }
-  
-  function removeGraphDiv(graphButtonDiv) {
-    console.log('remove:', graphButtonDiv);
-    graphButtonDiv.remove();
-    reSortData();
-    
-    // TODO: Remove data of selected graph
-    
-    // TODO: Remove the div
   }
 });
