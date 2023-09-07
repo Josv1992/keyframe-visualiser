@@ -327,7 +327,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to transform the input data
   function transformData(input) {
     const transformedData = [];
-    console.log(transformedData);
   
     let currentX = 0; // Initialize the currentX
   
@@ -437,12 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   function removeGraphDiv(graphButtonDiv) {
-    console.log('remove:', graphButtonDiv);
     graphButtonDiv.remove();
     reSortData();
-    
-    // TODO: Remove data of selected graph
-    
-    // TODO: Remove the div
   }
 });
