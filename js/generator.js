@@ -9,14 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('videoPropertiesForm');
   
-  // TODO:  Dingen die dubbelop zijn verwijderen, refactoren, vereenvoudigen.
-  // TODO: Graph verwijderbaar maken
+  // TODO: Refactor: Dingen die dubbelop zijn verwijderen, vereenvoudigen.
   // TODO: Graph editable maken (Kan het beste als je er een class van hebt gemaakt, die class instance aanpassen)
   
   document.getElementById('add').addEventListener('click', (e) => {
     e.preventDefault();
     if (currentChartDataString !== '') {
-      console.log(chartDataString);
       if (amountOfDataSets >= 1) {
         chartDataString = updatedDataString(chartDataString, currentChartDataString);
       }
@@ -285,8 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < graphDivs.length; i++) {
       chartData.push(graphDivs[i].getAttribute('data-chart-data'));
     }
-    console.log(chartData);
-    // chartData = transformData(chartData);
+
     convertAfterSort();
     renderFullGraph();
   }
@@ -296,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function convertAfterSort() {
     let sortedDataString = '';
-    const graphDivs = graphsContainer.querySelectorAll('div');
+    const graphDivs = graphsContainer.querySelectorAll('.graph-button');
     currentX = 0;
 
     for (let i = 0; i < graphDivs.length; i++) {
