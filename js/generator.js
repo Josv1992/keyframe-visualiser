@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentXValue = 0;
   let amountOfDataSets = 0;
   let allChartsDataString = '';
+  let currentXValueNew = 0;
 
   const form = document.getElementById('videoPropertiesForm');
   
@@ -78,14 +79,59 @@ document.addEventListener('DOMContentLoaded', () => {
     allDataSets.sort((a, b) => a.sortOrder - b.sortOrder);
     
     convertDataSetsToChartData(allDataSets);
-    
+    console.log(allChartsDataString);
   }
   
   const convertDataSetsToChartData = (dataSetsInput) => {
     dataSetsInput.forEach((dataSet) => {
-      console.log(dataSet);
+      addToDataString(dataSet);
       // TODO: kijken naar je oude functies, dat herhalen, en data toevoegen aan één lange string
     });
+    // TODO: komma ervoor, op eerste dataSet na
+  }
+
+  const addToDataString = (dataSet) => {
+    const xValues = generateXValuesNew(dataSet.fps, dataSet.duration, currentXValueNew);
+        
+    // Calculate the beat intervals based on BPM
+    const beatInterval = Math.ceil(dataSet.fps * (60 / dataSet.bpm));
+  
+    // Create an array to store the data pairs (x:y)
+    const dataPairs = xValues.map((x, index) => {
+      // Calculate the current beat position
+      const beatPosition = index % beatInterval;
+  
+      // Calculate the y-value based on beat position and hold frames
+      let maxHold = dataSet.falloffLength;
+      let y;
+      if (beatPosition < dataSet.holdFrames) {
+        y = dataSet.highStrength;
+        currentHold = 0;
+      } else {
+        if (index >= dataSet.holdFrames && currentHold < maxHold) {
+          const falloffDistance = beatPosition - dataSet.holdFrames;
+          const falloffFactor = dataSet.highStrength - Math.pow(falloffDistance / dataSet.falloffLength, dataSet.falloffCurve) * (dataSet.highStrength - dataSet.lowStrength);
+          currentHold++;
+          y = falloffFactor;
+        } else {
+          y = dataSet.lowStrength;
+        }
+      }
+  
+      return `${x}:(${y.toFixed(2)})`;
+    });
+
+    // TODO: X values hier optellen??? Dan moet het geen addToDataString meer heten maar iets anders
+    allChartsDataString += dataPairs.join(', ');
+
+    // Join the data pairs with commas and create the final data string
+    // return dataPairs.join(', ');
+  }
+
+  function generateXValuesNew(fps, videoLength, startValue) {
+    console.log(startValue);
+    const frameCount = Math.ceil(fps * videoLength);
+    return Array.from({ length: frameCount }, (_, index) => index + startValue);
   }
 
   
