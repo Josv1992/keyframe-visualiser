@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentChartDataString = ''; // Store individual data strings
   let currentXValue = 0;
   let amountOfDataSets = 0;
+  let allChartsDataString = '';
 
   const form = document.getElementById('videoPropertiesForm');
   
@@ -62,11 +63,31 @@ document.addEventListener('DOMContentLoaded', () => {
       const steepness     = parseFloat(form.steepness.value)
       
       allDataSets.push(new dataSet(graphName, framerate, length, bpm, highStrength, lowStrength, holdFrames, falloffValue, steepness));
+      renderFullGraphNew();
 
       form.name.value = "Graph " + (chartData.length + 1);
       amountOfDataSets++;
     }
   });
+
+  const renderFullGraphNew = () => {
+    allChartsDataString = '';
+    console.log(allDataSets);
+
+    // Sort the allDataSets array by sortOrder
+    allDataSets.sort((a, b) => a.sortOrder - b.sortOrder);
+    
+    convertDataSetsToChartData(allDataSets);
+    
+  }
+  
+  const convertDataSetsToChartData = (dataSetsInput) => {
+    dataSetsInput.forEach((dataSet) => {
+      console.log(dataSet);
+      // TODO: kijken naar je oude functies, dat herhalen, en data toevoegen aan één lange string
+    });
+  }
+
   
   function updatedDataString(firstString, secondString) {
     const items = firstString.split(', ');
